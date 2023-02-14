@@ -1,7 +1,7 @@
 const CartRepository = require('../../dao/Cart')
 const ProductRepository = require('../../dao/Product')
 
-const handleCarts = new CartRepository()
+const handleCarts = CartRepository.getInstance()
 const handleProducts = ProductRepository.getInstance()
 
 const createCart = async (req, res) => {

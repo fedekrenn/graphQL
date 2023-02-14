@@ -12,6 +12,9 @@ const routerSessions = require('./src/api/routes/session')
 
 const passport = require('./src/utils/passport')
 
+const { graphqlHTTP } = require('express-graphql')
+const graphQlQuery = require('./src/graphql/graphQlQuery')
+
 // Clusters
 const cluster = require('cluster')
 const cpuQuantity = require('os').cpus().length
@@ -34,7 +37,6 @@ if (MODE === 'cluster' && cluster.isMaster) {
     cluster.fork()
   })
 } else {
-
   /* ------ API  -------- */
 
   app.use(cors())
@@ -59,13 +61,16 @@ if (MODE === 'cluster' && cluster.isMaster) {
   app.use('/api/carrito', routerCarts)
   app.use('/', routerSessions)
 
+  /* ------ GraphQL  -------- */
+  app.use('/graphql', graphqlHTTP(graphQlQuery))
+
+  /* ------ Error 404  -------- */
+
   app.use((req, res) => {
-    res
-      .status(404)
-      .json({
-        error: -2,
-        descripcion: `ruta '${req.path}' método '${req.method}' no implementada`,
-      })
+    res.status(404).json({
+      error: -2,
+      descripcion: `ruta '${req.path}' método '${req.method}' no implementada`,
+    })
   })
 
   /* ------ Servidor  -------- */

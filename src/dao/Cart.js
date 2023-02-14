@@ -1,5 +1,7 @@
 const { loggerError } = require('../utils/logger')
 
+let instance = null
+
 class Cart {
   constructor() {
     this.db = []
@@ -111,6 +113,13 @@ class Cart {
     } catch (error) {
       loggerError.error(error)
     }
+  }
+
+  static getInstance() {
+    if (!instance) {
+      instance = new Cart()
+    }
+    return instance
   }
 }
 
