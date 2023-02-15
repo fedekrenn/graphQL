@@ -39,13 +39,27 @@ function renderProducts(products) {
 }
 
 async function addProductToCart(productId) {
-  let res = await fetch(`/api/carrito/${cartId}/productos/${productId}`, {
+  const query = `
+    mutation {
+      addProductToCart(id: ${cartId}, idProducto: ${productId}) {
+        message
+        error
+      }
+    }
+  `
+  const response = await fetch('/graphql', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
   })
 
-  const data = await res.json()
+  const res = await response.json()
 
-  if (data.hasOwnProperty('error')) {
+  const { addProductToCart: data } = res.data
+
+  if (data.error) {
     Swal.fire({
       icon: 'error',
       title: 'Oops...',
@@ -66,28 +80,79 @@ async function addProductToCart(productId) {
 
 async function init() {
   if (!cartId) {
-    let res = await fetch('/api/carrito', {
+    const query = `
+      mutation {
+        createCart {
+          message
+          id
+        }
+      }
+    `
+
+    const response = await fetch('/graphql', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
     })
 
-    let data = await res.json()
+    const res = await response.json()
+
+    const { createCart: data } = res.data
 
     cartId = data.id
     localStorage.setItem('cartId', cartId)
   } else {
-    let res = await fetch(`/api/carrito/${cartId}/productos`)
-    let data = await res.json()
+    const query = `
+      query {
+        getProducts(id: ${cartId}) {
+          error
+        }
+      }
+    `
 
+    const response = await fetch('/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    })
 
-    if (data.hasOwnProperty('error')) {
+    const res = await response.json()
+
+    const { getProducts: data } = res.data
+
+    if (data.error) {
       localStorage.removeItem('cartId')
       cartId = null
       init()
     }
   }
 
-  const response = await fetch('/api/productos/')
-  const products = await response.json()
+  const query = `
+    query {
+      getAll {
+        id
+        descripcion
+        nombre
+        foto
+        precio
+        stock
+      }
+    }
+  `
+
+  const response = await fetch('/graphql', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+  })
+
+  const result = await response.json()
+
+  const { getAll: products } = result.data
 
   renderProducts(products)
 

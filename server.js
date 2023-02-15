@@ -6,8 +6,6 @@ const cors = require('cors')
 const config = require('./src/config/config')
 const { logger, loggerWarn } = require('./src/utils/logger')
 
-const routerProducts = require('./src/api/routes/products')
-const routerCarts = require('./src/api/routes/carts')
 const routerSessions = require('./src/api/routes/session')
 
 const passport = require('./src/utils/passport')
@@ -57,8 +55,6 @@ if (MODE === 'cluster' && cluster.isMaster) {
 
   /* ------ Rutas  -------- */
 
-  app.use('/api/productos', routerProducts)
-  app.use('/api/carrito', routerCarts)
   app.use('/', routerSessions)
 
   /* ------ GraphQL  -------- */

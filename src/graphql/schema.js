@@ -6,7 +6,7 @@ type Producto {
   timestamp: Float
   nombre: String!
   descripcion: String!
-  codigo: Int!
+  codigo: String!
   foto: String!
   precio: Int!
   stock: Int!
@@ -25,7 +25,7 @@ type Cart {
 input ProductoInput {
   nombre: String!
   descripcion: String!
-  codigo: Int!
+  codigo: String!
   foto: String!
   precio: Int!
   stock: Int!

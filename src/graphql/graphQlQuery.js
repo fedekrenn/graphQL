@@ -21,7 +21,7 @@ const graphQlQuery = {
     createCart,
     addProductToCart,
     deleteProductFromCart,
-    deleteCart
+    deleteCart,
   },
   graphiql: true,
 }
@@ -71,7 +71,6 @@ async function updateById({ id, datos }) {
 async function deleteById({ id }) {
   try {
     const result = await handleProducts.deleteById(id)
-    console.log(result)
     return {
       message: result.message || '',
       error: result.error || '',

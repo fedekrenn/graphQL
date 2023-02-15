@@ -44,13 +44,29 @@ query {
   }
 }
 ```
-3 . Modificar un producto
+3 . Guardar un producto
+```
+mutation {
+  save(datos: {
+    nombre: "Cargador portátil", 
+    descripcion: "Nuevo cargador 2.0", 
+    codigo: "23345", 
+    foto: "nueva-foto.jpg", 
+    precio: 5000, 
+    stock: 10
+  }) {
+    id
+  }
+}
+
+```
+4 . Modificar un producto
 ```
 mutation {
   updateById(id: 2, datos: {
     nombre: "Nuevo nombre",
     descripcion: "Nueva descripción",
-    codigo: 12345,
+    codigo: "12345",
     foto: "nueva-foto.jpg",
     precio: 5000,
     stock: 10
@@ -60,7 +76,7 @@ mutation {
   }
 }
 ```
-4 . Eliminar un producto
+5 . Eliminar un producto
 ```
 mutation {
   deleteById(id: 1){
@@ -71,6 +87,7 @@ mutation {
 }
 ```
 <br>
+
 ### Carrito
 
 1. Obtener los productos de un carrito puntual

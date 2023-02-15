@@ -7,38 +7,49 @@ const deleteId = document.getElementById('deleteId')
 createProductForm.addEventListener('submit', async (e) => {
   e.preventDefault()
 
-  const body = {
-    nombre: e.target.prodName.value,
-    descripcion: e.target.description.value,
-    codigo: e.target.code.value,
-    foto: e.target.photo.value,
-    precio: e.target.price.value,
-    stock: e.target.stock.value,
+  const query = `mutation ($data: ProductoInput!) {
+    save(datos: $data) {
+      id
+      message
+      error
+    }
+  }`
+
+  const variables = {
+    data: {
+      nombre: e.target.prodName.value,
+      descripcion: e.target.description.value,
+      codigo: e.target.code.value,
+      foto: e.target.photo.value,
+      precio: parseInt(e.target.price.value),
+      stock: parseInt(e.target.stock.value),
+    },
   }
 
-  let res = await fetch('/api/productos', {
+  let res = await fetch('/graphql', {
     method: 'POST',
     headers: {
-      role: 'admin',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ query, variables }),
   })
 
-  const data = await res.json()
+  const result = await res.json()
 
-  if (data.error) {
+  const { save: confirm } = result.data
+
+  if (confirm.error) {
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',
-      text: data.error,
+      text: confirm.error,
     })
   }
 
   Swal.fire({
     icon: 'success',
     title: 'Carga exitosa',
-    text: data.message,
+    text: confirm.message,
     showConfirmButton: false,
     timer: 1500,
   })
@@ -51,33 +62,45 @@ createProductForm.addEventListener('submit', async (e) => {
 updateProductForm.addEventListener('submit', async (e) => {
   e.preventDefault()
 
-  const body = {
-    nombre: e.target.updateName.value,
-    descripcion: e.target.updateDescription.value,
-    codigo: e.target.updateCode.value,
-    foto: e.target.updatePhoto.value,
-    precio: e.target.updatePrice.value,
-    stock: e.target.updateStock.value,
-  }
-
   const productId = e.target.id.value
 
-  let res = await fetch(`http://localhost:8080/api/productos/${productId}`, {
-    method: 'PUT',
+  const variables = {
+    id: productId,
+    data: {
+      nombre: e.target.updateName.value,
+      descripcion: e.target.updateDescription.value,
+      codigo: e.target.updateCode.value,
+      foto: e.target.updatePhoto.value,
+      precio: parseInt(e.target.updatePrice.value),
+      stock: parseInt(e.target.updateStock.value),
+    },
+  }
+
+  const query = `mutation ($id: ID!, $data: ProductoInput!) {
+    updateById(id: $id, datos: $data) {
+      id
+      message
+      error
+    }
+  }`
+
+  let res = await fetch('/graphql', {
+    method: 'POST',
     headers: {
-      role: 'admin',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ query, variables }),
   })
 
-  const data = await res.json()
+  const result = await res.json()
 
-  if (data.hasOwnProperty('error'))
+  const { updateById: confirm } = result.data
+
+  if (confirm.error)
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',
-      text: data.error,
+      text: confirm.error,
       showConfirmButton: false,
       timer: 1500,
     })
@@ -88,7 +111,7 @@ updateProductForm.addEventListener('submit', async (e) => {
   Swal.fire({
     icon: 'success',
     title: 'Actualización exitosa',
-    text: data.message,
+    text: confirm.message,
     showConfirmButton: false,
     timer: 1500,
   })
@@ -101,16 +124,29 @@ deleteProductForm.addEventListener('submit', async (e) => {
 
   const productID = e.target.deleteId.value
 
-  let res = await fetch(`http://localhost:8080/api/productos/${productID}`, {
-    method: 'DELETE',
+  const query = `
+    mutation {
+      deleteById(id: ${productID}) {
+        message
+        id
+        error
+      }
+    }
+  `
+
+  const res = await fetch('/graphql', {
+    method: 'POST',
     headers: {
-      role: 'admin',
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({ query }),
   })
 
-  const data = await res.json()
+  const result = await res.json()
 
-  if (data.hasOwnProperty('error'))
+  const { deleteById: data } = result.data
+
+  if (data.error)
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',
@@ -165,9 +201,31 @@ init()
 
 async function getProducts() {
   try {
-    const response = await fetch('/api/productos/')
-    const data = await response.json()
-    return data
+    const query = `
+    query {
+      getAll {
+        id
+        descripcion
+        nombre
+        codigo
+        foto
+        precio
+        stock
+        timestamp
+      }
+    }`
+
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+
+    const result = await res.json()
+
+    const { getAll: products } = result.data
+
+    return products
   } catch (error) {
     console.log(error)
   }
@@ -182,9 +240,7 @@ function renderProducts(products) {
             <td>${product.codigo}</td>
             <td>${product.precio}</td>
             <td>${product.stock}</td>
-            <td><img src="${product.foto}" alt="${
-      product.nombre
-    }" width="100px"></td>
+            <td><img src="${product.foto}" alt="${product.nombre}" width="100px"></td>
             <td>${product.timestamp}</td>
             <td>${product.descripcion}</td>
         `

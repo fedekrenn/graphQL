@@ -31,7 +31,7 @@ openDialogBtn.addEventListener('click', async () => {
       const res = await deleteProductFromCart(productId)
 
       dialog.close()
-      if (res.hasOwnProperty('error')) return
+      if (res.error) return
 
       btn.parentElement.remove()
 
@@ -44,43 +44,12 @@ openDialogBtn.addEventListener('click', async () => {
 buyBtn.addEventListener('click', async (e) => {
   e.preventDefault()
 
-  const userData = JSON.parse(sessionStorage.getItem('personalData'))
-
-  const { personName, email, phone } = userData
-
-  let cartRes = await fetch(`/api/carrito/${cartId}/productos`)
-  let cartData = await cartRes.json()
-
-  const res = await fetch('/api/carrito/confirmar-compra', {
-    method: 'POST',
-    body: JSON.stringify({
-      cart: cartData,
-      email,
-      personName,
-      phone,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  const data = await res.json()
-
   dialog.close()
-
-  if (data.hasOwnProperty('error'))
-    return Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: data.error,
-      showConfirmButton: false,
-      timer: 1500,
-    })
 
   Swal.fire({
     icon: 'success',
     title: 'Compra realizada',
-    html: `${data.message} <br><br><br> Te llegará un Whatsapp con el detalle de tu compra`,
+    html: 'Te llegará un Whatsapp con el detalle de tu compra',
     showConfirmButton: true,
     timer: 5500,
   })
@@ -92,14 +61,36 @@ closeDialogBtn.addEventListener('click', () => {
 })
 
 async function getProducts(cartId) {
-  let res = await fetch(`/api/carrito/${cartId}/productos`)
+  const query = `
+    query {
+      getProducts(id: ${cartId}) {
+        error
+        message
+        id
+        productos {
+          id
+          nombre
+          foto
+        }
+      }
+    }
+  `
 
-  let data = await res.json()
+  const response = await fetch('/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
+  })
 
-  if (data.hasOwnProperty('message')) return []
+  const res = await response.json()
 
-  // Acá está el tema
-  if (data.hasOwnProperty('error')) {
+  const { getProducts: data } = res.data
+
+  if (data.message) return []
+
+  if (data.error) {
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',
@@ -109,19 +100,34 @@ async function getProducts(cartId) {
     })
   }
 
-  return data
+  return data.productos
 }
 
 async function deleteProductFromCart(productId) {
-  let res = await fetch(`/api/carrito/${cartId}/productos/${productId}`, {
-    method: 'DELETE',
+  const query = `
+    mutation {
+      deleteProductFromCart(id: ${cartId}, productId: ${productId}) {
+        message
+        error
+      }
+    }
+  `
+
+  const response = await fetch('/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
   })
 
   dialog.close()
 
-  const data = await res.json()
+  const res = await response.json()
 
-  if (data.hasOwnProperty('error')) {
+  const { deleteProductFromCart: data } = res.data
+
+  if (data.error) {
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',

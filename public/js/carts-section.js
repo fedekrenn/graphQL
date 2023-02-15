@@ -13,15 +13,33 @@ getProductsForm.addEventListener('submit', async (e) => {
 deleteCartForm.addEventListener('submit', async (e) => {
   e.preventDefault()
 
-  const res = await fetch(`/api/carrito/${e.target.deleteId.value}`, {
-    method: 'DELETE',
+  const cartId = e.target.deleteId.value
+
+  const query = `
+    mutation {
+      deleteCart(id: ${cartId}) {
+        message
+        error
+        id
+      }
+    }
+  `
+
+  const response = await fetch('/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
   })
 
-  const data = await res.json()
+  const res = await response.json()
+
+  const { deleteCart: data } = res.data
 
   renderCarts(await getCarts())
 
-  if (data.hasOwnProperty('message'))
+  if (data.message)
     return Swal.fire({
       icon: 'success',
       title: 'Éxito!',
@@ -30,7 +48,7 @@ deleteCartForm.addEventListener('submit', async (e) => {
       timer: 1500,
     })
 
-  if (data.hasOwnProperty('error'))
+  if (data.error)
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',
@@ -41,11 +59,39 @@ deleteCartForm.addEventListener('submit', async (e) => {
 })
 
 async function getProducts(cartId) {
-  let res = await fetch(`/api/carrito/${cartId}/productos`)
+  const query = `
+    query {
+      getProducts(id: ${cartId}) {
+        error
+        message
+        id
+        productos {
+          id
+          nombre
+          descripcion
+          codigo
+          foto
+          precio
+          stock
+          timestamp
+        }
+      }
+    }
+  `
 
-  let data = await res.json()
+  const response = await fetch('/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
+  })
 
-  if (data.hasOwnProperty('message'))
+  const res = await response.json()
+
+  const { getProducts: data } = res.data
+
+  if (data.message)
     return Swal.fire({
       icon: 'warning',
       title: 'Atención!',
@@ -54,7 +100,7 @@ async function getProducts(cartId) {
       timer: 1500,
     })
 
-  if (data.hasOwnProperty('error'))
+  if (data.error)
     return Swal.fire({
       icon: 'error',
       title: 'Oops...',
@@ -63,13 +109,13 @@ async function getProducts(cartId) {
       timer: 1500,
     })
 
-  currentCart = data
+  currentCart = data.productos
 
   const getProductsContainer = document.getElementById('get-products-container')
 
   getProductsContainer.innerHTML = ''
 
-  data.forEach((product) => {
+  data.productos.forEach((product) => {
     const productCard = document.createElement('tr')
     productCard.innerHTML = `
             <td>${product.id}</td>
@@ -77,9 +123,7 @@ async function getProducts(cartId) {
             <td>${product.codigo}</td>
             <td>${product.precio}</td>
             <td>${product.stock}</td>
-            <td><img src="${product.foto}" alt="${
-      product.nombre
-    }" width="100px"></td>
+            <td><img src="${product.foto}" alt="${product.nombre}" width="100px"></td>
             <td>${product.timestamp}</td>
             <td>${product.descripcion}</td>
         `
@@ -91,8 +135,29 @@ async function getProducts(cartId) {
 
 async function getCarts() {
   try {
-    const res = await fetch('/api/carrito/')
-    return await res.json()
+    const query = `
+      query {
+        getAllCarts {
+          id
+          timestamp
+          productos {
+            id
+          }
+        }
+      }
+    `
+
+    const response = await fetch('/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    })
+
+    const res = await response.json()
+
+    return res.data.getAllCarts
   } catch (error) {
     console.log(error)
   }
@@ -100,7 +165,7 @@ async function getCarts() {
 
 function renderCarts(carts) {
   cartContainer.innerHTML = ''
-  
+
   carts.forEach((cart) => {
     cartContainer.innerHTML += `
           <tr>
