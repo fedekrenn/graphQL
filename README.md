@@ -12,7 +12,7 @@ La app permite a los usuarios realizar consultas complejas y obtener exactamente
 
 1. Clonar el repositorio y utilizarlo de manera local
 
-    `git clone https://github.com/fedekrenn/memory-game-JS.git`
+    `https://github.com/fedekrenn/graphQL.git`
     
 2. Levantar el servidor de manera local con el comando:
 
