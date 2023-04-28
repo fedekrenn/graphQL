@@ -1,7 +1,5 @@
 # ⌨ GraphQL
 
-Aplicación de Carrito de Compras
-
 ## 📝 Detalle
 Esta aplicación permite a los usuarios crear y gestionar carritos de compras. Los carritos de compras pueden incluir diferentes productos y esta aplicación 
 proporciona una interfaz para agregar, eliminar, y visualizar los productos dentro de un carrito. Esta aplicación puede ser utilizada tanto a través de GraphQL. 
@@ -12,17 +10,26 @@ La app permite a los usuarios realizar consultas complejas y obtener exactamente
 
 1. Clonar el repositorio y utilizarlo de manera local
 
-    `https://github.com/fedekrenn/graphQL.git`
-    
-2. Levantar el servidor de manera local con el comando:
+`git clone https://github.com/fedekrenn/graphQL.git`
 
-    `npm run dev`
+2. Instalar las dependencias
+
+`npm install --force`
+
+3. Crear un archivo .env con las siguientes variables:
+
+```
+DB_URL_MONGO= <URL de la base de datos>
+MODE= <cluster o no>
+```
     
-3. En la ruta raíz podrás acceder en una vista desde el front, pero puedes acceder a graphiQL para hacer las consultas desde el IDE en el path `/graphQL`
+4. Levantar el servidor de manera local con el comando:
+
+`npm run dev`
+    
+5. En la ruta raíz podrás acceder en una vista desde el front, pero puedes acceder a graphiQL para hacer las consultas desde el IDE en el path `/graphQL`
 
 ## Funcionalidades: Query y mutaciones:
-
-<br>
 
 ### Productos
 
@@ -158,11 +165,10 @@ mutation {
 ```
     
 <br>
-<br>
 
-<h2> 🙋‍♂️ Hola, Soy Federico Krenn</h2>
-:nerd_face: Me encuentro cursando la carrera de fullstack developer en Coderhouse 
+## 🙋‍♂️ Hola, Soy Federico Krenn
+:nerd_face: Desarrollador web Fullstack
 <br>
-🌱 Actualmente estoy cursando Backend
-<br></br>
+👨‍🎓 Realizando la Tecnicatura en Desarrollo Web en ISPC y Tecnicatura en Software Libre en la UNL
+<br>
 📫 Conectemos en Linkedin: https://www.linkedin.com/in/fkrenn/

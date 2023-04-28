@@ -32,3 +32,7 @@
     at execute (C:\Users\fedek\OneDrive\Escritorio\Programación\graphQL\node_modules\graphql\execution\execute.js:136:20)
     at graphqlMiddleware (C:\Users\fedek\OneDrive\Escritorio\Programación\graphQL\node_modules\express-graphql\index.js:125:32)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+[2023-04-28T15:18:18.248] [ERROR] error - MongooseError: Operation `accounts.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\fedek\Desktop\graphQL\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:153:23)
+    at listOnTimeout (node:internal/timers:564:17)
+    at process.processTimers (node:internal/timers:507:7)
